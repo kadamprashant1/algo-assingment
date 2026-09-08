@@ -1,56 +1,86 @@
-// changes in code
-
 #include <bits/stdc++.h>
 using namespace std;
 
-void findHammingDistance(vector<vector<int>> &arr, vector<vector<int>> &p, int n, int k){
-    int minHammingDist = INT_MAX;
-    pair<int, int> topleft;
 
-    for(int i=0; i<=n-k; i++){
-        for(int j=0; j<=n-k; j++){
-            int currHammingDist = 0;
-            for(int x=0; x<k; x++){
-                for(int y=0; y<k; y++){
-                    if(arr[i+x][j+y] != p[x][y]){
-                        currHammingDist++;
+
+int findClosestSubmatrix(const vector<vector<int>> &matrix, const vector<vector<int>> &pattern)
+{
+    int n = static_cast<int>(matrix.size());
+    int k = static_cast<int>(pattern.size());
+
+    if (k == 0)
+    {
+        return 0;
+    }
+
+    int minimumDistance = INT_MAX;
+
+    for (int row = 0; row <= n - k; row++)
+    {
+        for (int column = 0; column <= n - k; column++)
+        {
+            int currentDistance = 0;
+            for (int patternRow = 0; patternRow < k; patternRow++)
+            {
+                for (int patternColumn = 0; patternColumn < k; patternColumn++)
+                {
+                    if (matrix[row + patternRow][column + patternColumn] != pattern[patternRow][patternColumn])
+                    {
+                        currentDistance++;
                     }
                 }
             }
-            if(currHammingDist < minHammingDist){
-                minHammingDist = currHammingDist;
-                topleft = {i, j};
+            if (currentDistance < minimumDistance)
+            {
+                minimumDistance = currentDistance;
             }
         }
     }
 
-    cout<<"Minimum Hamming Distance: "<<minHammingDist<<"\n";
-    cout<<"Top-left corner of the submatrix: ("<<topleft.first<<", "<<topleft.second<<")\n";
+    return minimumDistance;
 }
 
-
 int main(){
-    int n; 
-    cout<<"enter size of n is : ";
-    cin>> n;
+    int n;
+    cin >> n;
+    if (n < 0)
+    {
+        return 1;
+    }
+
     vector<vector<int>> arr(n, vector<int>(n));
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++){
-            cin>>arr[i][j];
+    for (int row = 0; row < n; row++)
+    {
+        for (int column = 0; column < n; column++)
+        {
+            cin >> arr[row][column];
+            if (arr[row][column] != 0 && arr[row][column] != 1)
+            {
+                return 1;
+            }
         }
     }
 
     int k;
-    cout<<"enter k : ";
-    cin>>k;
-    cout<<"\n";
+    cin >> k;
+    if (k < 0 || k > n){
+        return 1;
+    }
+
     vector<vector<int>> p(k, vector<int>(k));
-    for(int i=0; i<k; i++){
-        for(int j=0; j<k; j++){
-            cin>>p[i][j];
+    for (int row = 0; row < k; row++)
+    {
+        for (int column = 0; column < k; column++)
+        {
+            cin >> p[row][column];
+            if (p[row][column] != 0 && p[row][column] != 1)
+            {
+                return 1;
+            }
         }
     }
-    findHammingDistance(arr, p, n, k);
 
+    int minimumDistance = findClosestSubmatrix(arr, p);
+    cout << "Minimum Hamming Distance: " << minimumDistance << '\n';
     return 0;
 }

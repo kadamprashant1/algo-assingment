@@ -1,49 +1,72 @@
-// changes in code
-
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<int> solver(vector<vector<int>> arr, int k) {
+vector<int> solver(const vector<vector<int>> &arr)
+{
     vector<int> ans;
 
     priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<tuple<int, int, int>>> pq;
-    for (int i = 0; i < k; i++) {
-        if (!arr[i].empty()) {
-            pq.push({arr[i][0], i, 0});
+    for (int i = 0; i < static_cast<int>(arr.size()); i++)
+    {
+        if (!arr[i].empty())
+        {
+            pq.push(make_tuple(arr[i][0], i, 0));
         }
     }
-    while (!pq.empty()) {
-
-        auto [value, arrIdx, eleIdx] = pq.top();
+    while (!pq.empty())
+    {
+        int value = get<0>(pq.top());
+        int arrIdx = get<1>(pq.top());
+        int eleIdx = get<2>(pq.top());
         pq.pop();
+
         ans.push_back(value);
         int nextIdx = eleIdx + 1;
 
-        if (nextIdx < arr[arrIdx].size()) {
-            pq.push({arr[arrIdx][nextIdx], arrIdx, nextIdx});
+        if (nextIdx < static_cast<int>(arr[arrIdx].size()))
+        {
+            pq.push(make_tuple(arr[arrIdx][nextIdx], arrIdx, nextIdx));
         }
     }
     return ans;
 }
 
+int main()
+{
+    int k;
+    cin >> k;
+    if (k < 0)
+    {
+        return 1;
+    }
 
-int main() {
-    int size, k;
-    cout << "Enter size: ";
-    cin >> size;
-    vector<vector<int>> arr(size, vector<int>(size));
-    cout << "Enter elements:\n";
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
+    vector<vector<int>> arr(k);
+    for (int i = 0; i < k; i++)
+    {
+        int size;
+        cin >> size;
+        if (size < 0)
+        {
+            return 1;
+        }
+
+        arr[i].resize(size);
+        for (int j = 0; j < size; j++)
+        {
             cin >> arr[i][j];
         }
     }
-    cout << "Enter k: ";
-    cin >> k;
-    vector<int> ans = solver(arr, k);
-    cout << "Merged array: ";
-    for (int i = 0; i < ans.size(); i++) {
-        cout << ans[i] << " ";
+
+    vector<int> ans = solver(arr);
+    cout << "Sorted array: ";
+    for (int i = 0; i < ans.size(); i++)
+    {
+        if (i > 0)
+        {
+            cout << ' ';
+        }
+        cout << ans[i];
     }
+    cout << '\n';
     return 0;
 }

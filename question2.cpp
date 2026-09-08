@@ -1,16 +1,14 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-struct Node
-{
+struct Node{
     int val;
     Node* prev;
     Node* next;
     Node(int v) : val(v), prev(NULL), next(NULL) {};
 };
 
-Node *createCircularList(int arr[], int n)
-{
+Node *createCircularList(int arr[], int n){
     Node *head = NULL, *tail = NULL;
     for (int i = 0; i < n; i++)
     {
@@ -29,8 +27,7 @@ Node *createCircularList(int arr[], int n)
     return head;
 }
 
-Node * applyoperation(Node *head, int k)
-{
+Node * applyoperation(Node *head, int k){
     if (!head || k <= 0) return head;
 
     vector<int> arr;
@@ -39,26 +36,22 @@ Node * applyoperation(Node *head, int k)
     {
         arr.push_back(temp->val);
         temp = temp->next;
-    } while (temp != head);
+    }while (temp != head);
 
     int n = arr.size();
     vector<int> result(n);
-    for (int i = 0; i < n; i++)
-    {
+    for (int i = 0; i < n; i++){
         int max_val = arr[i];
-        for (int j = 1; j < k && (i + j) < n; j++)
-        {
+        for (int j = 1; j < k && (i + j) < n; j++){
             max_val = max(max_val, arr[i + j]);
         }
         result[i] = max_val;
     }
 
     Node *new_head = NULL, *new_tail = NULL;
-    for (int val : result)
-    {
+    for (int val : result){
         Node* temp = new Node(val);
-        if (new_head == NULL)
-            new_head = new_tail = temp;
+        if (new_head == NULL)  new_head = new_tail = temp;
         else
         {
             new_tail->next = temp;
@@ -73,8 +66,7 @@ Node * applyoperation(Node *head, int k)
 }
 
 
-void printCircularList(Node* head)
-{
+void printCircularList(Node* head){
     if (!head) return;
     Node* temp = head;
     do
@@ -86,29 +78,24 @@ void printCircularList(Node* head)
 }
 
 
-int main()
-{
+int main(){
     cout<<"enter size of list : ";
     int n;
     cin>>n;
     cout<<""<<endl;
     int arr[n];
     cout<<"enter elements of list : ";
-    for(int i=0;i<n;i++)
-    {
+    for(int i=0;i<n;i++){
         cin>>arr[i];
     }
-        cout<<""<<endl;
+    cout<<""<<endl;
 
     cout<<"enter k : ";
     int k;
     cin>>k;
-        cout<<""<<endl;
-
+    cout<<""<<endl;
     Node *head = createCircularList(arr,n);
     head = applyoperation(head,k);
     printCircularList(head);
-
-    
     return 0;
 }
