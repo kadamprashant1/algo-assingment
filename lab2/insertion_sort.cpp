@@ -2,28 +2,22 @@
 #include <chrono>
 using namespace std;
 
-
-// Bubble Sort
-void bubbleSort(vector<int>& arr) {
+// Insertion Sort
+void insertionSort(vector<int>& arr) {
 
     int n = static_cast<int>(arr.size());
 
-    for (int i = 0; i < n - 1; i++) {
+    for (int i = 1; i < n; i++) {
 
-        bool swapped = false;
+        int key = arr[i];
+        int j = i - 1;
 
-        for (int j = 0; j < n - i - 1; j++) {
-
-            if (arr[j] > arr[j + 1]) {
-                swap(arr[j], arr[j + 1]);
-                swapped = true;
-            }
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
         }
 
-        // Stop if array is already sorted
-        if (!swapped) {
-            break;
-        }
+        arr[j + 1] = key;
     }
 }
 
@@ -53,10 +47,10 @@ int main() {
     vector<int> randomArr2 = randomArr;
 
 
-    // Bubble Sort - Random
+    // Insertion Sort - Random
     auto start1 = chrono::high_resolution_clock::now();
 
-    bubbleSort(randomArr);
+    insertionSort(randomArr);
 
     auto end1 = chrono::high_resolution_clock::now();
 
@@ -77,20 +71,20 @@ int main() {
     cout << "RANDOM ARRAY" << endl;
     cout << "========================================" << endl;
 
-    cout << "Bubble Sort time: "
+    cout << "Insertion Sort time: "
          << elapsed1.count()
          << " seconds" << endl;
 
     cout << "Standard library sort time: "
          << elapsed2.count()
-         << " seconds" << endl; 
+         << " seconds" << endl;
 
 
-    // Save Bubble Sort result
-    ofstream fout1("BubbleSorted_random.txt");
+    // Save Insertion Sort result
+    ofstream fout1("InsertionSorted_random.txt");
 
     if (!fout1) {
-        cerr << "Error: Could not create BubbleSorted_random.txt"
+        cerr << "Error: Could not create InsertionSorted_random.txt"
              << endl;
         return 1;
     }
@@ -101,7 +95,7 @@ int main() {
 
     fout1.close();
 
-    cout << "Output file: BubbleSorted_random.txt" << endl;
+    cout << "Output file: InsertionSorted_random.txt" << endl;
 
 
     // =====================================================
@@ -126,10 +120,10 @@ int main() {
     vector<int> ascendingArr2 = ascendingArr;
 
 
-    // Bubble Sort - Ascending
+    // Insertion Sort - Ascending
     auto start3 = chrono::high_resolution_clock::now();
 
-    bubbleSort(ascendingArr);
+    insertionSort(ascendingArr);
 
     auto end3 = chrono::high_resolution_clock::now();
 
@@ -151,7 +145,7 @@ int main() {
     cout << "ASCENDING SORTED ARRAY" << endl;
     cout << "========================================" << endl;
 
-    cout << "Bubble Sort time: "
+    cout << "Insertion Sort time: "
          << elapsed3.count()
          << " seconds" << endl;
 
@@ -160,11 +154,11 @@ int main() {
          << " seconds" << endl;
 
 
-    // Save Bubble Sort result
-    ofstream fout2("BubbleSorted_ascending.txt");
+    // Save Insertion Sort result
+    ofstream fout2("InsertionSorted_ascending.txt");
 
     if (!fout2) {
-        cerr << "Error: Could not create BubbleSorted_ascending.txt"
+        cerr << "Error: Could not create InsertionSorted_ascending.txt"
              << endl;
         return 1;
     }
@@ -175,7 +169,7 @@ int main() {
 
     fout2.close();
 
-    cout << "Output file: BubbleSorted_ascending.txt" << endl;
+    cout << "Output file: InsertionSorted_ascending.txt" << endl;
 
 
     // =====================================================
@@ -185,8 +179,7 @@ int main() {
     ifstream fin3("numbers_sorted_reversed.txt");
 
     if (!fin3) {
-        cerr << "Error: Could not open numbers_sorted_reversed.txt"
-             << endl;
+        cerr << "Error: Could not open numbers_sorted_reversed.txt" << endl;
         return 1;
     }
 
@@ -201,15 +194,15 @@ int main() {
     vector<int> descendingArr2 = descendingArr;
 
 
-    // Bubble Sort - Descending
+    // Insertion Sort - Descending
     auto start5 = chrono::high_resolution_clock::now();
 
-    bubbleSort(descendingArr);
+    insertionSort(descendingArr);
 
     auto end5 = chrono::high_resolution_clock::now();
 
     chrono::duration<double> elapsed5 = end5 - start5;
-    
+
 
     // std::sort - Descending
     auto start6 = chrono::high_resolution_clock::now();
@@ -226,7 +219,7 @@ int main() {
     cout << "DESCENDING SORTED ARRAY" << endl;
     cout << "========================================" << endl;
 
-    cout << "Bubble Sort time: "
+    cout << "Insertion Sort time: "
          << elapsed5.count()
          << " seconds" << endl;
 
@@ -235,11 +228,11 @@ int main() {
          << " seconds" << endl;
 
 
-    // Save Bubble Sort result
-    ofstream fout3("BubbleSorted_descending.txt");
+    // Save Insertion Sort result
+    ofstream fout3("InsertionSorted_descending.txt");
 
     if (!fout3) {
-        cerr << "Error: Could not create BubbleSorted_descending.txt"
+        cerr << "Error: Could not create InsertionSorted_descending.txt"
              << endl;
         return 1;
     }
@@ -250,7 +243,7 @@ int main() {
 
     fout3.close();
 
-    cout << "Output file: BubbleSorted_descending.txt" << endl;
+    cout << "Output file: InsertionSorted_descending.txt" << endl;
 
     cout << endl;
     cout << "========================================" << endl;

@@ -2,28 +2,58 @@
 #include <chrono>
 using namespace std;
 
+// Get maximum value
+int getMax(vector<int>& arr) {
 
-// Bubble Sort
-void bubbleSort(vector<int>& arr) {
+    int mx = arr[0];
 
-    int n = static_cast<int>(arr.size());
+    for (int x : arr) {
+        mx = max(mx, x);
+    }
 
-    for (int i = 0; i < n - 1; i++) {
+    return mx;
+}
 
-        bool swapped = false;
+// Counting Sort for Radix Sort
+void countingSort(vector<int>& arr, int exp) {
 
-        for (int j = 0; j < n - i - 1; j++) {
+    int n = arr.size();
 
-            if (arr[j] > arr[j + 1]) {
-                swap(arr[j], arr[j + 1]);
-                swapped = true;
-            }
-        }
+    vector<int> output(n);
+    int count[10] = {0};
 
-        // Stop if array is already sorted
-        if (!swapped) {
-            break;
-        }
+    for (int i = 0; i < n; i++) {
+        int digit = (arr[i] / exp) % 10;
+        count[digit]++;
+    }
+
+    for (int i = 1; i < 10; i++) {
+        count[i] += count[i - 1];
+    }
+
+    for (int i = n - 1; i >= 0; i--) {
+        int digit = (arr[i] / exp) % 10;
+
+        output[count[digit] - 1] = arr[i];
+        count[digit]--;
+    }
+
+    for (int i = 0; i < n; i++) {
+        arr[i] = output[i];
+    }
+}
+
+// Radix Sort
+void radixSort(vector<int>& arr) {
+
+    if (arr.empty()) {
+        return;
+    }
+
+    int mx = getMax(arr);
+
+    for (int exp = 1; mx / exp > 0; exp *= 10) {
+        countingSort(arr, exp);
     }
 }
 
@@ -53,10 +83,10 @@ int main() {
     vector<int> randomArr2 = randomArr;
 
 
-    // Bubble Sort - Random
+    // Radix Sort - Random
     auto start1 = chrono::high_resolution_clock::now();
 
-    bubbleSort(randomArr);
+    radixSort(randomArr);
 
     auto end1 = chrono::high_resolution_clock::now();
 
@@ -77,20 +107,20 @@ int main() {
     cout << "RANDOM ARRAY" << endl;
     cout << "========================================" << endl;
 
-    cout << "Bubble Sort time: "
+    cout << "Radix Sort time: "
          << elapsed1.count()
          << " seconds" << endl;
 
     cout << "Standard library sort time: "
          << elapsed2.count()
-         << " seconds" << endl; 
+         << " seconds" << endl;
 
 
-    // Save Bubble Sort result
-    ofstream fout1("BubbleSorted_random.txt");
+    // Save Radix Sort result
+    ofstream fout1("RadixSorted_random.txt");
 
     if (!fout1) {
-        cerr << "Error: Could not create BubbleSorted_random.txt"
+        cerr << "Error: Could not create RadixSorted_random.txt"
              << endl;
         return 1;
     }
@@ -101,7 +131,7 @@ int main() {
 
     fout1.close();
 
-    cout << "Output file: BubbleSorted_random.txt" << endl;
+    cout << "Output file: RadixSorted_random.txt" << endl;
 
 
     // =====================================================
@@ -126,10 +156,10 @@ int main() {
     vector<int> ascendingArr2 = ascendingArr;
 
 
-    // Bubble Sort - Ascending
+    // Radix Sort - Ascending
     auto start3 = chrono::high_resolution_clock::now();
 
-    bubbleSort(ascendingArr);
+    radixSort(ascendingArr);
 
     auto end3 = chrono::high_resolution_clock::now();
 
@@ -151,7 +181,7 @@ int main() {
     cout << "ASCENDING SORTED ARRAY" << endl;
     cout << "========================================" << endl;
 
-    cout << "Bubble Sort time: "
+    cout << "Radix Sort time: "
          << elapsed3.count()
          << " seconds" << endl;
 
@@ -160,11 +190,11 @@ int main() {
          << " seconds" << endl;
 
 
-    // Save Bubble Sort result
-    ofstream fout2("BubbleSorted_ascending.txt");
+    // Save Radix Sort result
+    ofstream fout2("RadixSorted_ascending.txt");
 
     if (!fout2) {
-        cerr << "Error: Could not create BubbleSorted_ascending.txt"
+        cerr << "Error: Could not create RadixSorted_ascending.txt"
              << endl;
         return 1;
     }
@@ -175,7 +205,7 @@ int main() {
 
     fout2.close();
 
-    cout << "Output file: BubbleSorted_ascending.txt" << endl;
+    cout << "Output file: RadixSorted_ascending.txt" << endl;
 
 
     // =====================================================
@@ -201,15 +231,15 @@ int main() {
     vector<int> descendingArr2 = descendingArr;
 
 
-    // Bubble Sort - Descending
+    // Radix Sort - Descending
     auto start5 = chrono::high_resolution_clock::now();
 
-    bubbleSort(descendingArr);
+    radixSort(descendingArr);
 
     auto end5 = chrono::high_resolution_clock::now();
 
     chrono::duration<double> elapsed5 = end5 - start5;
-    
+
 
     // std::sort - Descending
     auto start6 = chrono::high_resolution_clock::now();
@@ -226,7 +256,7 @@ int main() {
     cout << "DESCENDING SORTED ARRAY" << endl;
     cout << "========================================" << endl;
 
-    cout << "Bubble Sort time: "
+    cout << "Radix Sort time: "
          << elapsed5.count()
          << " seconds" << endl;
 
@@ -235,11 +265,11 @@ int main() {
          << " seconds" << endl;
 
 
-    // Save Bubble Sort result
-    ofstream fout3("BubbleSorted_descending.txt");
+    // Save Radix Sort result
+    ofstream fout3("RadixSorted_descending.txt");
 
     if (!fout3) {
-        cerr << "Error: Could not create BubbleSorted_descending.txt"
+        cerr << "Error: Could not create RadixSorted_descending.txt"
              << endl;
         return 1;
     }
@@ -250,7 +280,7 @@ int main() {
 
     fout3.close();
 
-    cout << "Output file: BubbleSorted_descending.txt" << endl;
+    cout << "Output file: RadixSorted_descending.txt" << endl;
 
     cout << endl;
     cout << "========================================" << endl;
