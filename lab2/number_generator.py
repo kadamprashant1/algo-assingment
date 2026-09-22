@@ -1,6 +1,9 @@
 import numpy as np
 
-numbers = np.random.randint(1, 1000000, size=100000)
-numbers = list(reversed(sorted(numbers)))
+numbers = np.random.randint(1, 5000000, size=100000)
+# numbers = list(reversed(sorted(numbers)))
+# numbers = sorted(numbers))
 
-np.savetxt("numbers_sorted_reversed.txt", numbers, fmt="%d")
+
+
+np.savetxt("numbers.txt", numbers, fmt="%d")
