@@ -77,7 +77,29 @@
 #include <iomanip>
 #include <cmath>
 
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include "bubble_sort.h"
+#include "insertion_sort.h"
+#include "merge_sort.h"
+#include "quick_sort.h"
+#include "heap_sort.h"
+#include "radix_sort.h"
+
 using namespace std; // correct accordingly
+
+void saveSortedArray(const std::vector<int>& data, const std::string& algoName, const std::string& inputType, int n, int trialNum) {
+    mkdir("outputs", 0777);
+    std::string filename = "outputs/sorted_" + algoName + "_" + inputType + "_" + std::to_string(n) + "_trial" + std::to_string(trialNum) + ".txt";
+    std::ofstream fout(filename);
+    if(fout.is_open()) {
+        for(int val : data) {
+            fout << val << "\n";
+        }
+        fout.close();
+    }
+}
 /* ------------------------------------------------------------------ */
 /*                        CONFIGURATION                                */
 /* ------------------------------------------------------------------ */
@@ -88,8 +110,8 @@ static const int NUM_TRIALS = 5;
 static const int BUBBLE_SORT_MAX_N = 20000;
 
 // Experiment sizes
-static const int SIZES[] = {1000, 5000, 10000, 50000, 100000};
-static const int NUM_SIZES = 5;
+static const int SIZES[] = {100, 500, 1000, 10000, 20000, 50000, 100000};
+static const int NUM_SIZES = 7;
 
 // Input type names
 static const std::string INPUT_TYPES[] = {"random", "increasing", "decreasing"};
@@ -108,14 +130,6 @@ static const std::string ALGO_NAMES[] = {
 };
 static const int NUM_ALGOS = 8;
 
-/* ------------------------------------------------------------------ */
-/*                    GLOBAL PIVOT RNG                                  */
-/* ------------------------------------------------------------------ */
-
-// This RNG is used exclusively by QuickSort_Random for pivot selection.
-// It is re-seeded at the start of each sort call for reproducibility,
-// but NOT re-seeded within recursive calls.
-static std::mt19937 pivotRng(PIVOT_SEED);
 
 /* ------------------------------------------------------------------ */
 /*                    INPUT GENERATION                                  */
@@ -179,281 +193,6 @@ std::vector<int> readInputFromFile(const std::string& filename) {
 
     fin.close();
     return data;
-}
-
-/* ------------------------------------------------------------------ */
-/*                    SORTING ALGORITHMS                                */
-/* ------------------------------------------------------------------ */
-
-/* --- Bubble Sort --- */
-void bubbleSort(std::vector<int>& a, uint64_t& comps) {
-    int n = (int)a.size();
-    for (int i = 0; i < n - 1; ++i) {
-        bool swapped = false;
-        for (int j = 0; j < n - 1 - i; ++j) {
-            ++comps;  // key comparison: a[j] > a[j+1]
-            if (a[j] > a[j + 1]) {
-                std::swap(a[j], a[j + 1]);
-                swapped = true;
-            }
-        }
-        if (!swapped) break;  // optimisation: early exit if sorted
-    }
-}
-
-/* --- Insertion Sort --- */
-void insertionSort(std::vector<int>& a, uint64_t& comps) {
-    int n = (int)a.size();
-    for (int i = 1; i < n; ++i) {
-        int key = a[i];
-        int j = i - 1;
-        // Each iteration of this while-loop performs one key comparison.
-        while (j >= 0) {
-            ++comps;  // key comparison: a[j] > key
-            if (a[j] > key) {
-                a[j + 1] = a[j];
-                --j;
-            } else {
-                break;
-            }
-        }
-        a[j + 1] = key;
-    }
-}
-
-/* --- Merge Sort --- */
-// Merge two sorted halves a[left..mid] and a[mid+1..right]
-static void merge(std::vector<int>& a, std::vector<int>& temp,
-                  int left, int mid, int right, uint64_t& comps) {
-    int i = left, j = mid + 1, k = left;
-
-    while (i <= mid && j <= right) {
-        ++comps;  // key comparison: a[i] <= a[j]
-        if (a[i] <= a[j]) {
-            temp[k++] = a[i++];
-        } else {
-            temp[k++] = a[j++];
-        }
-    }
-    while (i <= mid) {
-        temp[k++] = a[i++];
-    }
-    while (j <= right) {
-        temp[k++] = a[j++];
-    }
-    for (int idx = left; idx <= right; ++idx) {
-        a[idx] = temp[idx];
-    }
-}
-
-static void mergeSortHelper(std::vector<int>& a, std::vector<int>& temp,
-                            int left, int right, uint64_t& comps) {
-    if (left < right) {
-        int mid = left + (right - left) / 2;
-        mergeSortHelper(a, temp, left, mid, comps);
-        mergeSortHelper(a, temp, mid + 1, right, comps);
-        merge(a, temp, left, mid, right, comps);
-    }
-}
-
-void mergeSort(std::vector<int>& a, uint64_t& comps) {
-    int n = (int)a.size();
-    if (n <= 1) return;
-    std::vector<int> temp(n);
-    mergeSortHelper(a, temp, 0, n - 1, comps);
-}
-
-/* --- QuickSort ---
- *
- * PARTITION SCHEME: Lomuto partition
- * ----------------------------------
- * The pivot is placed at a[high] (swapped there first if needed).
- * We maintain an index i such that all elements a[low..i] <= pivot.
- * We scan j from low to high-1; whenever a[j] <= pivot, we increment
- * i and swap a[i] with a[j].  Finally the pivot is placed at a[i+1].
- *
- * Each comparison a[j] <= pivot is a key comparison and is counted.
- *
- * STACK SAFETY
- * ------------
- * After partitioning, we recurse on the smaller sub-array first and
- * loop (tail-call optimise) on the larger one.  This guarantees
- * O(log n) stack depth even on worst-case inputs.
- */
-
-// Lomuto partition with pivot already at a[high].
-static int lomutoPartition(std::vector<int>& a, int low, int high, uint64_t& comps) {
-    int pivot = a[high];
-    int i = low - 1;
-    for (int j = low; j < high; ++j) {
-        ++comps;  // key comparison: a[j] <= pivot
-        if (a[j] <= pivot) {
-            ++i;
-            std::swap(a[i], a[j]);
-        }
-    }
-    std::swap(a[i + 1], a[high]);
-    return i + 1;
-}
-
-// QuickSort with tail-call optimisation on the larger partition.
-static void quickSortInternal(std::vector<int>& a, int low, int high,
-                              uint64_t& comps, int pivotStrategy) {
-    while (low < high) {
-        // Select pivot and move it to a[high]
-        int pivotIdx;
-        if (pivotStrategy == 0) {
-            // First-element pivot
-            pivotIdx = low;
-        } else if (pivotStrategy == 1) {
-            // Random-element pivot
-            std::uniform_int_distribution<int> dist(low, high);
-            pivotIdx = dist(pivotRng);
-        } else {
-            // Median-of-three pivot
-            int mid = low + (high - low) / 2;
-            // Find median of a[low], a[mid], a[high]
-            // We count these as key comparisons since they compare data elements.
-            int lo = low, mi = mid, hi2 = high;
-
-            // Sort the three values to find the median
-            ++comps; // key comparison
-            if (a[lo] > a[mi]) std::swap(lo, mi);
-            ++comps; // key comparison
-            if (a[lo] > a[hi2]) std::swap(lo, hi2);
-            ++comps; // key comparison
-            if (a[mi] > a[hi2]) std::swap(mi, hi2);
-
-            pivotIdx = mi;  // median index
-        }
-
-        std::swap(a[pivotIdx], a[high]);
-
-        int p = lomutoPartition(a, low, high, comps);
-
-        // Recurse on smaller partition, loop on larger (tail-call opt)
-        if (p - low < high - p) {
-            quickSortInternal(a, low, p - 1, comps, pivotStrategy);
-            low = p + 1;
-        } else {
-            quickSortInternal(a, p + 1, high, comps, pivotStrategy);
-            high = p - 1;
-        }
-    }
-}
-
-void quickSortFirst(std::vector<int>& a, uint64_t& comps) {
-    if (a.size() <= 1) return;
-    quickSortInternal(a, 0, (int)a.size() - 1, comps, 0);
-}
-
-void quickSortRandom(std::vector<int>& a, uint64_t& comps) {
-    if (a.size() <= 1) return;
-    // Re-seed the pivot RNG for reproducibility of this sort call.
-    pivotRng.seed(PIVOT_SEED);
-    quickSortInternal(a, 0, (int)a.size() - 1, comps, 1);
-}
-
-void quickSortMedian3(std::vector<int>& a, uint64_t& comps) {
-    if (a.size() <= 1) return;
-    quickSortInternal(a, 0, (int)a.size() - 1, comps, 2);
-}
-
-/* --- Heap Sort ---
- *
- * Standard in-place heap sort using a max-heap.
- * siftDown restores the heap property; each comparison of
- * a[child] vs a[child+1] and a[largest] vs a[i] is a key comparison.
- */
-static void siftDown(std::vector<int>& a, int n, int i, uint64_t& comps) {
-    while (true) {
-        int largest = i;
-        int left = 2 * i + 1;
-        int right = 2 * i + 2;
-
-        if (left < n) {
-            ++comps;  // key comparison: a[left] > a[largest]
-            if (a[left] > a[largest]) {
-                largest = left;
-            }
-        }
-        if (right < n) {
-            ++comps;  // key comparison: a[right] > a[largest]
-            if (a[right] > a[largest]) {
-                largest = right;
-            }
-        }
-
-        if (largest == i) break;  // NOT a key comparison (index comparison)
-
-        std::swap(a[i], a[largest]);
-        i = largest;
-    }
-}
-
-void heapSort(std::vector<int>& a, uint64_t& comps) {
-    int n = (int)a.size();
-    // Build max-heap
-    for (int i = n / 2 - 1; i >= 0; --i) {
-        siftDown(a, n, i, comps);
-    }
-    // Extract elements
-    for (int i = n - 1; i > 0; --i) {
-        std::swap(a[0], a[i]);
-        siftDown(a, i, 0, comps);
-    }
-}
-
-/* --- Radix Sort ---
- *
- * LSD Radix Sort for non-negative integers, base 10.
- *
- * This implementation supports non-negative integers only.
- * The input generation guarantees non-negative values
- * (random range [0, n*10], increasing [0..n-1], decreasing [n-1..0]).
- *
- * Because Radix Sort determines ordering by examining individual
- * digits rather than comparing keys, the key-comparison count
- * is always 0.
- */
-void radixSort(std::vector<int>& a, uint64_t& comps) {
-    // comps stays 0 — Radix Sort is non-comparison-based.
-    (void)comps;
-
-    int n = (int)a.size();
-    if (n <= 1) return;
-
-    // Find maximum value to determine number of digit passes
-    int maxVal = *std::max_element(a.begin(), a.end());
-
-    std::vector<int> output(n);
-
-    // Process each digit (LSD first)
-    for (long long exp = 1; maxVal / exp > 0; exp *= 10) {
-        int count[10] = {0};
-
-        // Count occurrences
-        for (int i = 0; i < n; ++i) {
-            count[(a[i] / (int)exp) % 10]++;
-        }
-
-        // Cumulative count
-        for (int i = 1; i < 10; ++i) {
-            count[i] += count[i - 1];
-        }
-
-        // Build output (stable, right to left)
-        for (int i = n - 1; i >= 0; --i) {
-            int digit = (a[i] / (int)exp) % 10;
-            output[count[digit] - 1] = a[i];
-            count[digit]--;
-        }
-
-        // Copy back
-        for (int i = 0; i < n; ++i) {
-            a[i] = output[i];
-        }
-    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -523,6 +262,8 @@ TrialResult runTrial(int algoIdx, const std::vector<int>& inputData,
                   << ", trial=" << trialNum << ")" << std::endl;
         exit(1);
     }
+
+    saveSortedArray(data, result.algorithm, inputType, result.n, trialNum);
 
     return result;
 }
