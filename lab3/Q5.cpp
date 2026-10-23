@@ -55,7 +55,7 @@ int main() {
     cin.tie(NULL);
  
     int m, n;
-    cout << "Enter rows and columns: ";
+    cout << "Enter rows and columns: " << flush;
     cin >> m >> n;
     if (m <= 0 || n <= 0) {
         cout << "Matrix dimensions must be positive" << endl;
@@ -65,12 +65,14 @@ int main() {
    
     vector<vector<int>> a(m, vector<int>(n));
     cout << "Enter the matrix (rows and columns sorted ascending):" << endl;
-    for (int i = 0; i < m; i++)
-        for (int j = 0; j < n; j++)
+    for (int i = 0; i < m; i++){
+        for (int j = 0; j < n; j++){
             cin >> a[i][j];
- 
+        }
+    }
+    cout<<"----------------------"<<endl;
+    cout << "Enter k (1 to " << m * n << "): "<< flush;
     int k;
-    cout << "Enter k (1 to " << m * n << "): ";
     cin >> k;
     if (k < 1 || k > m * n) {
         cout << "k is out of range" << endl;

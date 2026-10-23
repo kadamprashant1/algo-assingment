@@ -57,7 +57,7 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     int k;
-    cout << "Enter k (board size n = 2^k): ";
+    cout << "Enter k (board size n = 2^k): " << flush;
     cin >> k;
     if (k <= 0) {
         cout << "k must be > 0\n";
@@ -66,7 +66,7 @@ int main() {
 
     int n = 1 << k;
     int mr, mc;
-    cout << "Enter missing square (row col, 0-indexed, 0.." << n - 1 << "): ";
+    cout << "Enter missing square (row col, 0-indexed, 0.." << n - 1 << "): "<< flush;
     cin >> mr >> mc;
     if (mr < 0 || mr >= n || mc < 0 || mc >= n) {
         cout << "Invalid position\n";
