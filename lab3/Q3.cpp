@@ -11,6 +11,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+// Merge arr[low..mid] and arr[mid+1..high] (each already sorted) and
+// return the number of "cross" inversions found while merging.
 long long merge_inversions(vector<int> &arr, int low, int mid, int high) {
     int n1 = mid - low + 1;
     int n2 = high - mid;
@@ -35,6 +37,7 @@ long long merge_inversions(vector<int> &arr, int low, int mid, int high) {
     return inv_count;
 }
 
+// Sorts arr[low..high] and returns how many inversions it contained.
 long long count_inver(vector<int> &arr, int low, int high) {
     if (high <= low) return 0;
 

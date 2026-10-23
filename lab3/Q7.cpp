@@ -9,7 +9,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// Counts occurrences of x in arr[lo..hi]
+// it Counts occurrences of x in arr[lo..hi]
 int countInRange(const vector<int>& arr, int lo, int hi, int x) {
     int c = 0;
     for (int i = lo; i <= hi; i++)
@@ -18,7 +18,7 @@ int countInRange(const vector<int>& arr, int lo, int hi, int x) {
 }
 
 // ---------- Part (i): Divide and conquer, O(n log n) ----------
-// Returns {true, element} if arr[lo..hi] has a majority element, else {false, 0}
+// if arr has majaority elements then return {true, element} else {false,0}
 pair<bool, int> majorityDC(const vector<int>& arr, int lo, int hi) {
     if (lo == hi) return {true, arr[lo]};
 
@@ -54,7 +54,7 @@ pair<bool, int> candidateLinear(vector<int> a) {
             for (int v : a)
                 if (v == x) c++;
             if (c > (int)a.size() / 2) return {true, x};
-            a.pop_back();   // x is not a majority, so removing it is safe
+            a.pop_back();   // x is not a majority, then removing it is safe
         }
 
         // Pair up: different -> discard both, same -> keep one
@@ -72,7 +72,7 @@ pair<bool, int> majorityLinear(const vector<int>& arr) {
     pair<bool, int> cand = candidateLinear(arr);
     if (!cand.first) return {false, 0};
 
-    // Verify the candidate with one pass
+    // Verify the candidate
     int c = countInRange(arr, 0, (int)arr.size() - 1, cand.second);
     if (c > (int)arr.size() / 2) return {true, cand.second};
     return {false, 0};
@@ -99,14 +99,20 @@ int main() {
     }
 
     pair<bool, int> r1 = majorityDC(arr, 0, size - 1);
+    
     cout << "\n(i)  Divide & conquer O(n log n): ";
-    if (r1.first) cout << "majority element = " << r1.second << endl;
-    else          cout << "no majority element" << endl;
+    if (r1.first) 
+            cout << "majority element = " << r1.second << endl;
+    else          
+            cout << "no majority element" << endl;
 
     pair<bool, int> r2 = majorityLinear(arr);
     cout << "(ii) Pairing method O(n):         ";
-    if (r2.first) cout << "majority element = " << r2.second << endl;
-    else          cout << "no majority element" << endl;
+
+    if (r2.first)
+            cout << "majority element = " << r2.second << endl;
+    else          
+            cout << "no majority element" << endl;
 
     return 0;
 }

@@ -18,53 +18,65 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-bool binarySearchMatrix(int* arr, int row , int col , int find){
-    int low = 0;
-    int high = (row * col) - 1;
-
-    while (low <= high) {
-        int mid = low + (high - low) / 2;
-        int midValue = *((arr + (mid / col) * col) + (mid % col)); 
-
-        if (midValue == find) {
-            return true;
-        } else if (midValue < find) {
-            low = mid + 1;
+// it finds How many entries in the matrix are <= x ?
+int countLessEqual(const vector<vector<int>> &a, int x) {
+    int m = a.size(), n = a[0].size();
+    int count = 0;
+    int r = m - 1, c = 0;          // start bottom-left
+    while (r >= 0 && c < n) {
+        if (a[r][c] <= x) {
+            count += r + 1;        // as everything above in this column also fits
+            c++;                   // it slide right to the next column
         } else {
-            high = mid - 1;
+            r--;                   // as too big, go up a row
         }
     }
-    return false;
+    return count;
 }
-
-int main(){
+ 
+int kthSmallest(const vector<vector<int>> &a, int k) {
+    int m = a.size(), n = a[0].size();
+    int lo = a[0][0];              // smallest value in the matrix
+    int hi = a[m - 1][n - 1];      // largest value in the matrix
+ 
+    while (lo < hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (countLessEqual(a, mid) >= k) {
+            hi = mid;              // answer is mid or something smaller
+        } else {
+            lo = mid + 1;          // answer must be bigger than mid
+        }
+    }
+    return lo;
+}
+ 
+int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    cout<<"Enter row, col for matrix : "<<endl;
-    int m,n;
-    cout<<"row : "<<endl;
-    cin>>m;
-    cout<<" col : "<<endl;
-    cin>>n;
-    cout<<endl;
-    int arr[m][n];
+ 
+    int m, n;
+    cout << "Enter rows and columns: ";
+    cin >> m >> n;
+    if (m <= 0 || n <= 0) {
+        cout << "Matrix dimensions must be positive" << endl;
+        return 1;
+    }
+ 
+   
+    vector<vector<int>> a(m, vector<int>(n));
+    cout << "Enter the matrix (rows and columns sorted ascending):" << endl;
+    for (int i = 0; i < m; i++)
+        for (int j = 0; j < n; j++)
+            cin >> a[i][j];
+ 
     int k;
-    cout<<"Enter elements for matrix"<<endl;
-    for(int i=0;i< m; i++){
-        for(int j=0;j< n;j++){
-            cin>>arr[i][j];
-            cout<<" ";
-        }
-        cout<<endl;
-
+    cout << "Enter k (1 to " << m * n << "): ";
+    cin >> k;
+    if (k < 1 || k > m * n) {
+        cout << "k is out of range" << endl;
+        return 1;
     }
-    cout<<"inter element to search : ";
-    cin>>k;
-    if(binarySearchMatrix((int*)arr, m, n, k)){
-        cout<<"element is "<<k<<" present"<<endl;
-    }else{
-        cout<<"element is "<<k<<" not present"<<endl;
-    }
-
+ 
+    cout << "The " << k << "-th smallest element is " << kthSmallest(a, k) << endl;
     return 0;
 }
